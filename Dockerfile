@@ -2,6 +2,15 @@ FROM amazonlinux:2
 
 LABEL maintainer "Yusuke Kuoka <ykuoka@gmail.com>"
 
+RUN mkdir dsa && cd dsa && \
+    curl -L https://app.deepsecurity.trendmicro.com/software/agent/amzn2/x86_64/ -o agent.rpm && \
+    yum -y agent.rpm && \
+    touch /etc/use_dsa_with_iptables && \
+    /opt/ds_agent/dsa_control -r && \
+    /opt/ds_agent/dsa_control -a dsm://agents.deepsecurity.trendmicro.com:443/ "tenantID:XXXXXXXX" "token:XXXXXXXX" "policy:XXXXXXXX" && \
+    cd .. && \
+    rm -rf dsa
+
 RUN yum update -y && \
     yum install -y systemd curl tar sudo && \
     yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
